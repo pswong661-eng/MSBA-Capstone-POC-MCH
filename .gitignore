@@ -1,0 +1,12 @@
+# Never commit patient-level data — MIMIC-IV is credentialed under a DUA
+*.csv
+*.parquet
+*.tsv
+data/
+credentials/
+*.json.key
+service-account*.json
+.env
+__pycache__/
+node_modules/
+.DS_Store
