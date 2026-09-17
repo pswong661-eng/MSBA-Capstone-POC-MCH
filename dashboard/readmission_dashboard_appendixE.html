@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Readmission Risk Dashboard — Appendix E Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+<style>
+:root{
+  --navy:#0F2027; --teal:#028090; --seafoam:#00A896;
+  --bg:#F0F7F4; --card:#FFFFFF; --ink:#12232B; --ink-soft:#4B6167; --line:#DCE8E5;
+  --high:#D64545; --med:#E0A335; --low:#2E9E6B; --blue:#2B6CB0;
+  --radius:12px; --gap:18px;
+  --ui:'IBM Plex Sans',-apple-system,Segoe UI,sans-serif;
+  --mono:'IBM Plex Mono',SFMono-Regular,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14px;line-height:1.5}
+.wrap{max-width:1400px;margin:0 auto;padding:22px 26px 60px}
+.topbar{background:linear-gradient(120deg,var(--navy),#123A45);border-radius:var(--radius);
+  padding:20px 26px;color:#fff;margin-bottom:14px;display:flex;justify-content:space-between;
+  align-items:flex-start;flex-wrap:wrap;gap:12px}
+.topbar h1{margin:0 0 3px;font-size:20px;font-weight:700}
+.topbar .sub{font-size:12px;color:#9FD7CE;font-family:var(--mono)}
+.topbar .meta{text-align:right;font-size:11.5px;color:#B7CBD1}
+.topbar .meta b{color:#fff;font-family:var(--mono)}
+.banner{background:#E8F5F3;border:1px solid var(--seafoam);border-radius:var(--radius);
+  padding:11px 16px;margin-bottom:16px;font-size:12.5px;color:#0F4C42;display:flex;gap:10px;align-items:flex-start}
+.banner .dot{width:8px;height:8px;border-radius:50%;background:var(--seafoam);margin-top:5px;flex:none}
+.banner code{background:#D5EDE8;padding:1px 5px;border-radius:4px;font-family:var(--mono)}
+
+.panel{background:var(--card);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:0 1px 3px rgba(15,32,39,.08);margin-bottom:var(--gap)}
+.panel > h2{margin:0 0 2px;font-size:15px;font-weight:700;color:var(--navy)}
+.panel .purpose{font-size:11.5px;color:var(--ink-soft);margin-bottom:14px;font-style:italic}
+.panel-num{display:inline-block;background:var(--teal);color:#fff;font-family:var(--mono);
+  font-size:11px;padding:2px 8px;border-radius:20px;margin-right:8px;vertical-align:1px}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px}
+.kpi{background:#F6FBFA;border-radius:10px;padding:13px 15px;border-left:4px solid var(--teal)}
+.kpi .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);font-weight:600}
+.kpi .v{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--navy);margin-top:3px}
+.kpi .f{font-size:11px;color:var(--ink-soft);margin-top:2px}
+
+.filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px;
+  padding:12px 14px;background:#F6FBFA;border-radius:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);font-weight:600}
+.fg select,.fg input{font-family:var(--ui);font-size:12.5px;padding:6px 9px;border:1px solid var(--line);
+  border-radius:7px;background:#fff;color:var(--ink);min-width:150px}
+.fg select:disabled{background:#EEF2F1;color:#9AA9A6;cursor:not-allowed}
+.fg .hint{font-size:10px;color:#9AA9A6;font-style:italic}
+.count{margin-left:auto;font-size:12px;color:var(--ink-soft);font-family:var(--mono)}
+
+.tw{overflow-x:auto;max-height:420px;overflow-y:auto;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{position:sticky;top:0;background:#fff;text-align:left;padding:9px 10px;
+  border-bottom:2px solid var(--line);color:var(--ink-soft);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.4px;font-weight:700;white-space:nowrap;cursor:pointer;z-index:2}
+thead th:hover{color:var(--teal)}
+tbody td{padding:8px 10px;border-bottom:1px solid #F0F4F3;font-family:var(--mono);font-size:12px}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#F6FBFA}
+tbody tr.sel{background:#E8F5F3;box-shadow:inset 3px 0 0 var(--teal)}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:10.5px;font-weight:700;font-family:var(--ui)}
+.badge.High{background:#FBE4E4;color:var(--high)}
+.badge.Medium{background:#FCEFD8;color:#9A6B10}
+.badge.Low{background:#E1F3E9;color:var(--low)}
+.flag{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+.flag.High{background:var(--high)} .flag.Medium{background:var(--med)} .flag.Low{background:var(--low)}
+
+.grid2{display:grid;grid-template-columns:1fr 1.15fr;gap:var(--gap)}
+@media(max-width:1050px){.grid2{grid-template-columns:1fr}}
+
+.prob{display:flex;align-items:baseline;gap:14px;padding:16px 18px;border-radius:10px;
+  background:#F6FBFA;margin-bottom:14px}
+.prob .big{font-size:44px;font-weight:700;font-family:var(--mono);line-height:1}
+.prob .lbl{font-size:12px;color:var(--ink-soft)}
+.sec-h{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);
+  font-weight:700;margin:16px 0 8px}
+.clin{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px}
+.clin div{background:#F6FBFA;border-radius:8px;padding:9px 11px}
+.clin .k{font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px}
+.clin .v{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--navy);margin-top:2px}
+
+.contrib{list-style:none;margin:0;padding:0}
+.contrib li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F0F4F3}
+.contrib .rank{font-family:var(--mono);font-size:11px;color:#9AA9A6;width:18px}
+.contrib .nm{flex:1;font-size:12.5px}
+.contrib .bar{width:120px;height:9px;background:#EEF4F3;border-radius:5px;position:relative;flex:none}
+.contrib .bar i{position:absolute;top:0;bottom:0;border-radius:5px}
+.contrib .val{font-family:var(--mono);font-size:11.5px;width:58px;text-align:right}
+.up{color:var(--high)} .down{color:var(--blue)}
+
+.chk{list-style:none;margin:0;padding:0}
+.chk li{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid #F0F4F3;font-size:12.5px}
+.chk input{margin-top:2px;width:15px;height:15px;accent-color:var(--teal);cursor:pointer}
+.chk label{cursor:pointer}
+.chk .done{text-decoration:line-through;color:#9AA9A6}
+
+.narr{background:#F6FBFA;border-left:4px solid var(--teal);border-radius:10px;
+  padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.55}
+.narr .hl{margin:0 0 7px}
+.narr .bd{margin:0;color:var(--ink-soft)}
+.narr-flag{background:#FFF6E8;border:1px solid #F0D28B;border-radius:8px;padding:9px 11px;
+  margin-top:10px;font-size:12px;color:#6B4E10}
+.narr-act{margin:10px 0 0;padding-left:18px;font-size:12.5px}
+.narr-act li{margin-bottom:4px}
+.narr .src{font-size:10.5px;color:#9AA9A6;font-style:italic;margin-top:10px;
+  padding-top:8px;border-top:1px solid var(--line)}
+.legend{display:flex;gap:18px;font-size:11.5px;color:var(--ink-soft);margin-top:10px;flex-wrap:wrap}
+.legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.note{font-size:11.5px;color:var(--ink-soft);margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.notes-list{margin:6px 0 0;padding-left:20px;font-size:12.5px;color:var(--ink)}
+.notes-list li{margin-bottom:6px}
+.tag{display:inline-block;background:#EEF4F3;color:var(--ink-soft);font-size:10.5px;
+  padding:2px 8px;border-radius:20px;font-family:var(--mono);margin-left:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <h1>Readmission Risk Dashboard
+        <span style="display:inline-block;background:#D64545;color:#fff;font-family:var(--ui);
+        font-size:10.5px;font-weight:700;letter-spacing:.4px;padding:3px 10px;border-radius:20px;
+        margin-left:10px;vertical-align:4px">PROOF OF CONCEPT — NOT FOR CLINICAL USE</span>
+      </h1>
+      <div class="sub">Appendix E prototype (v5) · boosted_trees_model · de-identified MIMIC-IV v3.1 research records</div>
+    </div>
+    <div class="meta" id="meta">Loading…</div>
+  </div>
+
+  <div class="banner" style="background:#FFF6E8;border-color:#F0D28B;color:#6B4E10">
+    <div class="dot" style="background:#E0A335"></div>
+    <div><b>Sample records are synthetic.</b> The 39 admissions in the risk queue below use
+    fabricated identifiers and lightly perturbed clinical values. They do not correspond to
+    any real MIMIC-IV admission, consistent with the PhysioNet Data Use Agreement's
+    restriction on public redistribution of patient-level data. Every aggregate statistic
+    shown &mdash; AUC-ROC, tier distribution, feature importance, calibration &mdash; is
+    measured directly from the real 81,625-admission held-out test set.</div>
+  </div>
+  <div class="banner">
+    <div class="dot"></div>
+    <div id="banner-text"></div>
+  </div>
+
+  <!-- ============ PANEL 1 ============ -->
+  <div class="panel">
+    <h2><span class="panel-num">1</span>Risk Stratification Overview</h2>
+    <div class="purpose">Unit-level snapshot of patients scheduled for discharge. Supports rapid prioritisation by surfacing the highest-risk patients who may benefit most from enhanced discharge planning.</div>
+
+    <div class="kpi-row" id="tier-kpis"></div>
+
+    <div class="filters">
+      <div class="fg"><label>Risk tier</label>
+        <select id="f-tier"><option value="all">All tiers</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+      <div class="fg"><label>Admission type</label><select id="f-adm"></select></div>
+      <div class="fg"><label>Insurance</label><select id="f-ins"></select></div>
+      <div class="fg"><label>Unit</label>
+        <select disabled><option>Future MCH integration field</option></select>
+        <span class="hint">Not in scope for this prototype</span></div>
+      <div class="fg"><label>Service line</label>
+        <select disabled><option>Future MCH integration field</option></select>
+        <span class="hint">Not in scope for this prototype</span></div>
+      <span class="count" id="count"></span>
+    </div>
+
+    <div class="tw">
+      <table id="tbl">
+        <thead><tr>
+          <th data-k="risk">Risk score</th>
+          <th data-k="tier">Tier</th>
+          <th data-k="hadm_id">Admission ID</th>
+          <th data-k="los">LOS (d)</th>
+          <th data-k="adm">Admission type</th>
+          <th data-k="ins">Insurance</th>
+          <th data-k="dx">Diagnoses</th>
+          <th data-k="labs">Lab types</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="flag High"></span>High — score ≥ 0.30</span>
+      <span><span class="flag Medium"></span>Medium — 0.15 to 0.30</span>
+      <span><span class="flag Low"></span>Low — below 0.15</span>
+      <span style="margin-left:auto">Click any row to load Panels 2 and 3</span>
+    </div>
+    <div class="note" style="background:#FFF6E8;border:1px solid #F0D28B;border-radius:8px;
+      padding:10px 13px;margin-top:12px;color:#6B4E10;border-top:1px solid #F0D28B">
+      <b>Threshold disclaimer.</b> The 0.30 threshold is a <b>retrospective, capacity-oriented
+      scenario</b> used for evaluation on held-out research data. It is <b>not a clinically
+      validated MCH production threshold</b>. The Medium/Low boundary at 0.15 is a
+      <b>dashboard display and triage convention only</b> — it was not formally evaluated in the
+      report, which supports the 0.30 scenario alone. Any local operating threshold would require
+      calibration, workload review, fairness assessment and clinical-governance approval.
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- ============ PANEL 2 ============ -->
+    <div class="panel">
+      <h2><span class="panel-num">2</span>Patient Level Detail</h2>
+      <div class="purpose">Combines the prediction with clinical context and model attributions, supporting trust, interpretability and workflow integration.</div>
+      <div id="p2"></div>
+    </div>
+
+    <!-- ============ PANEL 3 ============ -->
+    <div class="panel">
+      <h2><span class="panel-num">3</span>SHAP Explanation</h2>
+      <div class="purpose">Visualises Shapley contributions for the selected patient, making the model's reasoning transparent and auditable for clinical review and governance.</div>
+      <div class="sec-h" style="margin-top:0">Global feature importance — all 10 model features</div>
+      <canvas id="globalChart" style="max-height:230px"></canvas>
+      <div class="sec-h">Selected patient</div>
+      <canvas id="shapChart" style="max-height:330px"></canvas>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--high)"></span>Risk increasing</span>
+        <span><span class="sw" style="background:var(--blue)"></span>Risk reducing</span>
+        <span id="baseline-note"></span>
+      </div>
+      <div class="note" id="shap-tips"></div>
+    </div>
+  </div>
+
+  <!-- ============ PANEL 4 ============ -->
+  <div class="panel">
+    <h2><span class="panel-num">4</span>Dashboard Notes</h2>
+    <ul class="notes-list">
+      <li><b>Proof of concept — not for clinical use.</b> This prototype is a research demonstration
+        for a future pilot. It is not production UI and not a clinical decision tool.</li>
+      <li>All records are <b>de-identified MIMIC-IV v3.1 research records</b>. <b>Not live MCH patient
+        data.</b> No PHI is displayed.</li>
+      <li><b>Threshold 0.30 is a retrospective, capacity-oriented scenario</b> evaluated on held-out
+        research data — not a clinically validated MCH production threshold.</li>
+      <li><b>The Medium/Low boundary at 0.15 is a dashboard display and triage convention only.</b>
+        The report evaluates the 0.30 scenario; 0.15 was not formally validated as a clinical cut-off.</li>
+      <li><b>Model.</b> <code>boosted_trees_model</code> — 100 iterations, subsample 0.8, ten features.
+        Held-out test set of 81,625 admissions: ROC-AUC 0.6407, log loss 0.4856, accuracy 0.7986 at the
+        default 0.50 threshold. At threshold 0.30: 8,658 flagged (10.61% flag rate), precision 38.15%,
+        recall 20.04%, F1-score 0.2627, accuracy 77.29%. Overall test prevalence 20.19%.</li>
+      <li><b>Shapley values describe model behaviour only.</b> They are <b>not causal explanations,
+        treatment recommendations, or evidence of clinical effectiveness</b>.</li>
+      <li><b>Three different baselines appear in this project and should not be conflated:</b> the SHAP
+        explanation baseline (24.65%, the model's expected output before any feature is considered);
+        the mean predicted risk across the test cohort (22.81%); and the observed test-set prevalence
+        (20.19%) reported in the written report.</li>
+      <li><b>Observed readmission percentages on the tier cards are historical event rates in the
+        retrospective test cohort</b>, computed from the same held-out split. They are not forecasts.</li>
+      <li><b>Sign convention.</b> This model's Shapley attributions are oriented toward the negative
+        class. Displayed signs are inverted so red consistently means "increases readmission risk".
+        Magnitudes and rankings are the model's own, unmodified.</li>
+      <li><b>The automated summary is deterministic and rule-based</b> — generated from Shapley output
+        and recorded values, with no language model and no external service call. Review prompts require
+        human clinical review and are not treatment advice.</li>
+      <li><b>Missing labs use a −999 sentinel</b> rather than being excluded. Admissions with no labs are
+        scored largely on administrative fields and are flagged low-confidence in Panel 2.</li>
+      <li><b>Unit</b> and <b>service line</b> are <b>future MCH integration fields</b>, shown disabled.
+        Neither exists in the modelling table. <b>Age-banded views</b> are likewise unavailable.</li>
+      <li><b>Calibration and subgroup fairness metrics have not been computed</b> (§8.1 of the report
+        lists both as pending) and are required before any production recommendation.</li>
+      <li>The dashboard can be implemented in Looker Studio, Tableau, or an EHR-adjacent module
+        depending on MCH's IT environment.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script id="data" type="application/json">
+{"meta": {"model": "mimiciv-bq.readmission_data.boosted_trees_model", "owner": "Zoyi Chung Yi Man", "auc": 0.6407, "logloss": 0.4856, "accuracy": 0.7986, "n_test": 81625, "n_train": 381888, "n_val": 82515, "event_rate": 0.2019, "threshold": 0.3, "med_threshold": 0.15, "ppv_high": 0.3815, "recall_high": 0.2004, "n_high": 8658, "baseline": 0.2281, "tiers": [{"tier": "High", "n": 8658, "pct": 0.1061, "observed": 0.3815, "readmits": 3303}, {"tier": "Medium", "n": 66732, "pct": 0.8175, "observed": 0.1904, "readmits": 12703}, {"tier": "Low", "n": 6235, "pct": 0.0764, "observed": 0.0767, "readmits": 478}], "shap_global": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "v": 0.05304}, {"f": "admission_type", "l": "Admission type", "v": 0.04999}, {"f": "length_of_stay_days", "l": "Length of stay", "v": 0.04692}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "v": 0.03944}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "v": 0.02525}, {"f": "insurance", "l": "Insurance", "v": 0.0249}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "v": 0.01828}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "v": 0.01781}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "v": 0.0108}, {"f": "race", "l": "Race", "v": 0.00732}], "calibration": [{"d": 1, "n": 8163, "p": 0.1286, "o": 0.0837}, {"d": 2, "n": 8163, "p": 0.17, "o": 0.1177}, {"d": 3, "n": 8163, "p": 0.1852, "o": 0.1461}, {"d": 4, "n": 8163, "p": 0.1998, "o": 0.1643}, {"d": 5, "n": 8163, "p": 0.2163, "o": 0.1871}, {"d": 6, "n": 8162, "p": 0.2313, "o": 0.197}, {"d": 7, "n": 8162, "p": 0.2493, "o": 0.2263}, {"d": 8, "n": 8162, "p": 0.266, "o": 0.2374}, {"d": 9, "n": 8162, "p": 0.2874, "o": 0.2758}, {"d": 10, "n": 8162, "p": 0.3474, "o": 0.3841}], "shap_baseline": 0.2465, "mean_predicted": 0.2281, "prevalence": 0.2019, "f1": 0.2627, "flag_rate": 0.1061, "acc_default": 0.7986, "acc_at_030": 0.7729, "sample_disclosure": "The 39 admissions in the queue below use SYNTHETIC identifiers and lightly perturbed clinical values. They are illustrative only and do not correspond to any real MIMIC-IV admission record, consistent with the PhysioNet Data Use Agreement's restriction on public redistribution of patient-level data. All aggregate statistics shown elsewhere on this dashboard (AUC-ROC, tier counts, feature importance, calibration) are measured directly from the real held-out test set of 81,625 admissions."}, "patients": [{"hadm_id": 90000000, "risk": 0.493, "tier": "High", "y": 1, "los": 18, "dx": 15, "labs": 65, "adm": "DIRECT EMER.", "ins": "Medicare", "hgb": 8.8, "creat": 0.97, "na": 135.0, "plt": 33.0, "wbc": 2.1, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1288, "v": 0.1288, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.1059, "v": 0.1059, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0926, "v": 0.0926, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0847, "v": 0.0847, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0657, "v": 0.0657, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0514, "v": 0.0514, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0475, "v": 0.0475, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0035, "v": 0.0035, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "insurance", "l": "Insurance", "raw": -0.0027, "v": 0.0027, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0008, "v": 0.0008, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000001, "risk": 0.4807, "tier": "High", "y": 0, "los": 12, "dx": 18, "labs": 43, "adm": "DIRECT EMER.", "ins": "Private", "hgb": 9.7, "creat": 0.49, "na": 134.0, "plt": 77.0, "wbc": 1.9, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1869, "v": 0.1869, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.1031, "v": 0.1031, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0936, "v": 0.0936, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0888, "v": 0.0888, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.044, "v": 0.044, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0405, "v": 0.0405, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0315, "v": 0.0315, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0292, "v": 0.0292, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "insurance", "l": "Insurance", "raw": 0.0039, "v": -0.0039, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.002, "v": 0.002, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000002, "risk": 0.4709, "tier": "High", "y": 1, "los": 4, "dx": 9, "labs": 35, "adm": "DIRECT EMER.", "ins": "Medicaid", "hgb": 9.2, "creat": 0.94, "na": 134.0, "plt": 257.0, "wbc": 4.6, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1871, "v": 0.1871, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0935, "v": 0.0935, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0708, "v": 0.0708, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0692, "v": 0.0692, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0422, "v": 0.0422, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0264, "v": 0.0264, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0141, "v": 0.0141, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "insurance", "l": "Insurance", "raw": -0.0125, "v": 0.0125, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0101, "v": -0.0101, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0004, "v": 0.0004, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000003, "risk": 0.4519, "tier": "High", "y": 0, "los": 6, "dx": 15, "labs": 42, "adm": "DIRECT EMER.", "ins": "Medicaid", "hgb": 10.3, "creat": 0.82, "na": 142.0, "plt": 81.0, "wbc": 2.5, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1873, "v": 0.1873, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0925, "v": 0.0925, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0848, "v": 0.0848, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.066, "v": 0.066, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0386, "v": 0.0386, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0315, "v": 0.0315, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0114, "v": 0.0114, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0108, "v": -0.0108, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "insurance", "l": "Insurance", "raw": -0.0078, "v": 0.0078, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0053, "v": 0.0053, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000004, "risk": 0.4424, "tier": "High", "y": 1, "los": 8, "dx": 18, "labs": 53, "adm": "ELECTIVE", "ins": "Medicaid", "hgb": 8.2, "creat": 0.79, "na": 145.0, "plt": 244.0, "wbc": 3.5, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1686, "v": 0.1686, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0838, "v": 0.0838, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0759, "v": 0.0759, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0618, "v": 0.0618, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0546, "v": 0.0546, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0509, "v": 0.0509, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0246, "v": 0.0246, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "insurance", "l": "Insurance", "raw": -0.012, "v": 0.012, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0104, "v": -0.0104, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0011, "v": 0.0011, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000005, "risk": 0.4277, "tier": "High", "y": 0, "los": 14, "dx": 20, "labs": 63, "adm": "OBSERVATION ADMIT", "ins": "Medicare", "hgb": 7.3, "creat": 0.51, "na": 138.0, "plt": 26.0, "wbc": 0.2, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.094, "v": 0.094, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0854, "v": 0.0854, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0834, "v": 0.0834, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0784, "v": 0.0784, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0573, "v": 0.0573, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0556, "v": 0.0556, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0153, "v": -0.0153, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0118, "v": 0.0118, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "insurance", "l": "Insurance", "raw": -0.0046, "v": 0.0046, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0017, "v": 0.0017, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000006, "risk": 0.4223, "tier": "High", "y": 1, "los": 4, "dx": 7, "labs": 48, "adm": "DIRECT EMER.", "ins": "Private", "hgb": 9.4, "creat": 0.61, "na": 138.0, "plt": 529.0, "wbc": 12.4, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1814, "v": 0.1814, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0738, "v": 0.0738, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0572, "v": 0.0572, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0518, "v": 0.0518, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0431, "v": -0.0431, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0359, "v": 0.0359, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "race", "l": "Race", "raw": 0.0346, "v": -0.0346, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0311, "v": 0.0311, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0264, "v": 0.0264, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": 0.0102, "v": -0.0102, "t": "Payer category acts as a partial proxy for access to post-acute care."}]}, {"hadm_id": 90000007, "risk": 0.4144, "tier": "High", "y": 1, "los": 1, "dx": 5, "labs": 25, "adm": "DIRECT OBSERVATION", "ins": "Private", "hgb": 8.5, "creat": 17.55, "na": 139.0, "plt": 275.0, "wbc": 5.9, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1987, "v": 0.1987, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0948, "v": 0.0948, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.081, "v": 0.081, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0358, "v": 0.0358, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0184, "v": 0.0184, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "insurance", "l": "Insurance", "raw": -0.0152, "v": 0.0152, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0137, "v": 0.0137, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0121, "v": 0.0121, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0081, "v": -0.0081, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": 0.0032, "v": -0.0032, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000008, "risk": 0.4131, "tier": "High", "y": 0, "los": 4, "dx": 9, "labs": 32, "adm": "DIRECT EMER.", "ins": "Private", "hgb": 9.5, "creat": 0.58, "na": 136.0, "plt": 447.0, "wbc": 8.7, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1629, "v": 0.1629, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0677, "v": 0.0677, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0577, "v": 0.0577, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0424, "v": 0.0424, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0372, "v": -0.0372, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0312, "v": 0.0312, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0297, "v": 0.0297, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0263, "v": 0.0263, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": 0.0102, "v": -0.0102, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0035, "v": 0.0035, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000009, "risk": 0.4074, "tier": "High", "y": 0, "los": 5, "dx": 13, "labs": 28, "adm": "DIRECT EMER.", "ins": "Medicaid", "hgb": 7.9, "creat": 2.91, "na": 132.0, "plt": 464.0, "wbc": 7.0, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1126, "v": 0.1126, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0951, "v": 0.0951, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0666, "v": 0.0666, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0582, "v": 0.0582, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0302, "v": 0.0302, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0239, "v": 0.0239, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0191, "v": 0.0191, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0176, "v": -0.0176, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "insurance", "l": "Insurance", "raw": -0.0143, "v": 0.0143, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": 0.0004, "v": -0.0004, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000010, "risk": 0.4032, "tier": "High", "y": 0, "los": 3, "dx": 8, "labs": 17, "adm": "ELECTIVE", "ins": "Medicare", "hgb": 8.4, "creat": 0.42, "na": 144.0, "plt": 360.0, "wbc": 11.9, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1797, "v": 0.1797, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.1, "v": 0.1, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0615, "v": 0.0615, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0563, "v": 0.0563, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0373, "v": 0.0373, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0277, "v": -0.0277, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.02, "v": 0.02, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0168, "v": 0.0168, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": 0.0012, "v": -0.0012, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0004, "v": 0.0004, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000011, "risk": 0.3939, "tier": "High", "y": 0, "los": 4, "dx": 3, "labs": 48, "adm": "ELECTIVE", "ins": "Private", "hgb": 6.9, "creat": 0.93, "na": 140.0, "plt": 307.0, "wbc": 7.1, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1604, "v": 0.1604, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0744, "v": 0.0744, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0599, "v": 0.0599, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.05, "v": 0.05, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0457, "v": 0.0457, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0133, "v": 0.0133, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": 0.0101, "v": -0.0101, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0078, "v": 0.0078, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0076, "v": -0.0076, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "race", "l": "Race", "raw": -0.0025, "v": 0.0025, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000012, "risk": 0.3935, "tier": "High", "y": 0, "los": 2, "dx": 11, "labs": 29, "adm": "DIRECT EMER.", "ins": "Medicare", "hgb": 10.7, "creat": 1.28, "na": 141.0, "plt": 81.0, "wbc": 4.0, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1913, "v": 0.1913, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0757, "v": 0.0757, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0589, "v": 0.0589, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0553, "v": 0.0553, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0207, "v": 0.0207, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0141, "v": 0.0141, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": 0.014, "v": -0.014, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0036, "v": 0.0036, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0003, "v": -0.0003, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "insurance", "l": "Insurance", "raw": -0.0002, "v": 0.0002, "t": "Payer category acts as a partial proxy for access to post-acute care."}]}, {"hadm_id": 90000013, "risk": 0.2996, "tier": "Medium", "y": 0, "los": 4, "dx": 15, "labs": 30, "adm": "EW EMER.", "ins": "Private", "hgb": 8.2, "creat": 0.81, "na": 147.0, "plt": 244.0, "wbc": 5.1, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.1159, "v": 0.1159, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0449, "v": 0.0449, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0314, "v": 0.0314, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0288, "v": 0.0288, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0273, "v": 0.0273, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0105, "v": -0.0105, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": 0.0091, "v": -0.0091, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0085, "v": 0.0085, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0046, "v": -0.0046, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "race", "l": "Race", "raw": -0.0013, "v": 0.0013, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000014, "risk": 0.2989, "tier": "Medium", "y": 0, "los": 4, "dx": 21, "labs": 34, "adm": "EW EMER.", "ins": "Medicare", "hgb": 9.4, "creat": 1.73, "na": 136.0, "plt": 142.0, "wbc": 4.5, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0799, "v": 0.0799, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0335, "v": 0.0335, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0273, "v": 0.0273, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0214, "v": 0.0214, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0213, "v": 0.0213, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0124, "v": -0.0124, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0094, "v": -0.0094, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "insurance", "l": "Insurance", "raw": -0.0044, "v": 0.0044, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0028, "v": -0.0028, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "race", "l": "Race", "raw": -0.0005, "v": 0.0005, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000015, "risk": 0.298, "tier": "Medium", "y": 0, "los": 6, "dx": 17, "labs": 34, "adm": "EW EMER.", "ins": "Medicare", "hgb": 8.9, "creat": 1.63, "na": 139.0, "plt": 245.0, "wbc": 7.0, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0887, "v": 0.0887, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.047, "v": 0.047, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0312, "v": 0.0312, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0219, "v": 0.0219, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0216, "v": 0.0216, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0082, "v": -0.0082, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": -0.0054, "v": 0.0054, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0038, "v": -0.0038, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0026, "v": -0.0026, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "race", "l": "Race", "raw": -0.0025, "v": 0.0025, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000016, "risk": 0.2978, "tier": "Medium", "y": 1, "los": 1, "dx": 15, "labs": 30, "adm": "DIRECT OBSERVATION", "ins": "Medicare", "hgb": 7.0, "creat": 0.79, "na": 133.0, "plt": 495.0, "wbc": 11.7, "shap": [{"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.082, "v": -0.082, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "admission_type", "l": "Admission type", "raw": -0.0637, "v": 0.0637, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0586, "v": 0.0586, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0526, "v": 0.0526, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.035, "v": 0.035, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0264, "v": 0.0264, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0078, "v": -0.0078, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0013, "v": 0.0013, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "race", "l": "Race", "raw": 0.0013, "v": -0.0013, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "insurance", "l": "Insurance", "raw": 0.0013, "v": -0.0013, "t": "Payer category acts as a partial proxy for access to post-acute care."}]}, {"hadm_id": 90000017, "risk": 0.2975, "tier": "Medium", "y": 0, "los": 43, "dx": 27, "labs": 95, "adm": "EW EMER.", "ins": "Medicare", "hgb": 8.2, "creat": 1.23, "na": 135.0, "plt": 136.0, "wbc": 31.6, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0879, "v": 0.0879, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0644, "v": 0.0644, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0436, "v": 0.0436, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0263, "v": -0.0263, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0206, "v": 0.0206, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0138, "v": -0.0138, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0132, "v": -0.0132, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.011, "v": 0.011, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "race", "l": "Race", "raw": -0.011, "v": 0.011, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "insurance", "l": "Insurance", "raw": -0.0064, "v": 0.0064, "t": "Payer category acts as a partial proxy for access to post-acute care."}]}, {"hadm_id": 90000018, "risk": 0.2972, "tier": "Medium", "y": 0, "los": 4, "dx": 24, "labs": 43, "adm": "EW EMER.", "ins": "Medicare", "hgb": 9.0, "creat": 0.94, "na": 133.0, "plt": 110.0, "wbc": 5.7, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0673, "v": 0.0673, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0503, "v": 0.0503, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0217, "v": 0.0217, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0134, "v": 0.0134, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0117, "v": 0.0117, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0063, "v": 0.0063, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0062, "v": -0.0062, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0037, "v": -0.0037, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "insurance", "l": "Insurance", "raw": -0.0027, "v": 0.0027, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0008, "v": 0.0008, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000019, "risk": 0.297, "tier": "Medium", "y": 1, "los": 3, "dx": 9, "labs": 29, "adm": "EW EMER.", "ins": "Medicare", "hgb": 8.8, "creat": 1.02, "na": 140.0, "plt": 33.0, "wbc": 1.2, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0936, "v": 0.0936, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0423, "v": 0.0423, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0409, "v": 0.0409, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0374, "v": 0.0374, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0275, "v": 0.0275, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0261, "v": -0.0261, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0209, "v": 0.0209, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "race", "l": "Race", "raw": 0.0171, "v": -0.0171, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "insurance", "l": "Insurance", "raw": -0.0096, "v": 0.0096, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "admission_type", "l": "Admission type", "raw": -0.0019, "v": 0.0019, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}]}, {"hadm_id": 90000020, "risk": 0.2945, "tier": "Medium", "y": 0, "los": 3, "dx": 7, "labs": 46, "adm": "EW EMER.", "ins": "Private", "hgb": 10.4, "creat": 4.66, "na": 136.0, "plt": 87.0, "wbc": 2.8, "shap": [{"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0639, "v": 0.0639, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0537, "v": 0.0537, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0475, "v": 0.0475, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "insurance", "l": "Insurance", "raw": 0.0212, "v": -0.0212, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "admission_type", "l": "Admission type", "raw": 0.018, "v": -0.018, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0175, "v": 0.0175, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0086, "v": 0.0086, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0081, "v": 0.0081, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0018, "v": -0.0018, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "race", "l": "Race", "raw": -0.0008, "v": 0.0008, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000021, "risk": 0.2945, "tier": "Medium", "y": 0, "los": 1, "dx": 1, "labs": 0, "adm": "DIRECT OBSERVATION", "ins": "Medicare", "hgb": null, "creat": null, "na": null, "plt": null, "wbc": null, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1392, "v": 0.1392, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0902, "v": 0.0902, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": 0.0523, "v": -0.0523, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0168, "v": 0.0168, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0143, "v": 0.0143, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "insurance", "l": "Insurance", "raw": -0.0111, "v": 0.0111, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.009, "v": 0.009, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.009, "v": 0.009, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.0075, "v": -0.0075, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "race", "l": "Race", "raw": 0.0055, "v": -0.0055, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000022, "risk": 0.2945, "tier": "Medium", "y": 0, "los": 1, "dx": 4, "labs": 0, "adm": "DIRECT OBSERVATION", "ins": "Medicare", "hgb": null, "creat": null, "na": null, "plt": null, "wbc": null, "shap": [{"f": "admission_type", "l": "Admission type", "raw": -0.1394, "v": 0.1394, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0902, "v": 0.0902, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": 0.052, "v": -0.052, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0168, "v": 0.0168, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0143, "v": 0.0143, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "insurance", "l": "Insurance", "raw": -0.011, "v": 0.011, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.009, "v": 0.009, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0088, "v": 0.0088, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.0075, "v": -0.0075, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "race", "l": "Race", "raw": 0.0057, "v": -0.0057, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000023, "risk": 0.2944, "tier": "Medium", "y": 0, "los": 6, "dx": 10, "labs": 37, "adm": "EW EMER.", "ins": "Private", "hgb": 8.5, "creat": 0.48, "na": 139.0, "plt": 544.0, "wbc": 20.2, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0865, "v": 0.0865, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.047, "v": 0.047, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0423, "v": 0.0423, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0323, "v": 0.0323, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0205, "v": 0.0205, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0196, "v": -0.0196, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0164, "v": -0.0164, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "insurance", "l": "Insurance", "raw": 0.0149, "v": -0.0149, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "race", "l": "Race", "raw": -0.0097, "v": 0.0097, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0079, "v": 0.0079, "t": "Elevated creatinine indicates impaired renal function."}]}, {"hadm_id": 90000024, "risk": 0.2939, "tier": "Medium", "y": 0, "los": 8, "dx": 19, "labs": 48, "adm": "OBSERVATION ADMIT", "ins": "Medicare", "hgb": 8.9, "creat": 0.61, "na": 140.0, "plt": 424.0, "wbc": 10.6, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0836, "v": 0.0836, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0575, "v": 0.0575, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.0429, "v": 0.0429, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0218, "v": 0.0218, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.017, "v": -0.017, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0134, "v": -0.0134, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0073, "v": 0.0073, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "race", "l": "Race", "raw": -0.0037, "v": 0.0037, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "insurance", "l": "Insurance", "raw": -0.0034, "v": 0.0034, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0025, "v": -0.0025, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}]}, {"hadm_id": 90000025, "risk": 0.2939, "tier": "Medium", "y": 1, "los": 10, "dx": 4, "labs": 39, "adm": "SURGICAL SAME DAY ADMISSION", "ins": "Medicare", "hgb": 7.9, "creat": 0.72, "na": 140.0, "plt": 118.0, "wbc": 7.6, "shap": [{"f": "length_of_stay_days", "l": "Length of stay", "raw": -0.1116, "v": 0.1116, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0924, "v": 0.0924, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0908, "v": -0.0908, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0309, "v": 0.0309, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": -0.0263, "v": 0.0263, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "race", "l": "Race", "raw": -0.0213, "v": 0.0213, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "insurance", "l": "Insurance", "raw": -0.009, "v": 0.009, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0051, "v": -0.0051, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0038, "v": 0.0038, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0023, "v": -0.0023, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}]}, {"hadm_id": 90000026, "risk": 0.15, "tier": "Low", "y": 0, "los": 2, "dx": 4, "labs": 17, "adm": "SURGICAL SAME DAY ADMISSION", "ins": "Private", "hgb": 12.4, "creat": 1.28, "na": 137.0, "plt": 139.0, "wbc": 7.6, "shap": [{"f": "admission_type", "l": "Admission type", "raw": 0.0819, "v": -0.0819, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.0766, "v": -0.0766, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0731, "v": -0.0731, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0417, "v": 0.0417, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "insurance", "l": "Insurance", "raw": 0.035, "v": -0.035, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.029, "v": -0.029, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0143, "v": -0.0143, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0122, "v": 0.0122, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0077, "v": -0.0077, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "race", "l": "Race", "raw": -0.0047, "v": 0.0047, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000027, "risk": 0.1493, "tier": "Low", "y": 0, "los": 4, "dx": 4, "labs": 29, "adm": "URGENT", "ins": "Medicaid", "hgb": 12.4, "creat": 0.7, "na": null, "plt": 272.0, "wbc": 18.6, "shap": [{"f": "admission_type", "l": "Admission type", "raw": 0.1882, "v": -0.1882, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": 0.0649, "v": -0.0649, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.0428, "v": -0.0428, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "insurance", "l": "Insurance", "raw": -0.0311, "v": 0.0311, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.026, "v": 0.026, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.022, "v": -0.022, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0192, "v": -0.0192, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0174, "v": -0.0174, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0057, "v": -0.0057, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0005, "v": 0.0005, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000028, "risk": 0.1493, "tier": "Low", "y": 0, "los": 1, "dx": 10, "labs": 29, "adm": "EW EMER.", "ins": "Private", "hgb": 13.8, "creat": 0.9, "na": 136.0, "plt": 242.0, "wbc": 9.2, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1298, "v": -0.1298, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0583, "v": -0.0583, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "insurance", "l": "Insurance", "raw": 0.0498, "v": -0.0498, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0359, "v": 0.0359, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0268, "v": -0.0268, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0098, "v": -0.0098, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0088, "v": -0.0088, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0084, "v": -0.0084, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0082, "v": 0.0082, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "race", "l": "Race", "raw": -0.0034, "v": 0.0034, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000029, "risk": 0.1489, "tier": "Low", "y": 0, "los": 3, "dx": 3, "labs": 27, "adm": "OBSERVATION ADMIT", "ins": "Private", "hgb": 14.3, "creat": 0.97, "na": 148.0, "plt": 161.0, "wbc": 11.6, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1357, "v": -0.1357, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "insurance", "l": "Insurance", "raw": 0.0361, "v": -0.0361, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0327, "v": -0.0327, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": 0.0231, "v": -0.0231, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0121, "v": -0.0121, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0105, "v": 0.0105, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0101, "v": -0.0101, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0082, "v": -0.0082, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0064, "v": -0.0064, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "race", "l": "Race", "raw": -0.0023, "v": 0.0023, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000030, "risk": 0.1487, "tier": "Low", "y": 0, "los": 1, "dx": 7, "labs": 19, "adm": "EW EMER.", "ins": "Private", "hgb": 12.4, "creat": 0.89, "na": 142.0, "plt": 205.0, "wbc": 6.1, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1276, "v": -0.1276, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0633, "v": -0.0633, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "insurance", "l": "Insurance", "raw": 0.0452, "v": -0.0452, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0171, "v": -0.0171, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0083, "v": 0.0083, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0072, "v": -0.0072, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0037, "v": 0.0037, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0034, "v": -0.0034, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0031, "v": -0.0031, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": 0.0003, "v": -0.0003, "t": "Hyponatraemia is a recognised predictor of early readmission."}]}, {"hadm_id": 90000031, "risk": 0.1487, "tier": "Low", "y": 0, "los": 1, "dx": 10, "labs": 16, "adm": "EW EMER.", "ins": "Other", "hgb": 14.7, "creat": 0.72, "na": 141.0, "plt": 243.0, "wbc": 7.0, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1187, "v": -0.1187, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0693, "v": -0.0693, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "insurance", "l": "Insurance", "raw": 0.0449, "v": -0.0449, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0339, "v": -0.0339, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0182, "v": 0.0182, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "admission_type", "l": "Admission type", "raw": 0.012, "v": -0.012, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0071, "v": -0.0071, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0052, "v": -0.0052, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0044, "v": 0.0044, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "race", "l": "Race", "raw": -0.0027, "v": 0.0027, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000032, "risk": 0.1487, "tier": "Low", "y": 0, "los": 1, "dx": 12, "labs": 24, "adm": "SURGICAL SAME DAY ADMISSION", "ins": "Private", "hgb": 11.6, "creat": 0.82, "na": 135.0, "plt": 198.0, "wbc": 11.8, "shap": [{"f": "admission_type", "l": "Admission type", "raw": 0.1159, "v": -0.1159, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0705, "v": -0.0705, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.047, "v": -0.047, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0388, "v": 0.0388, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "insurance", "l": "Insurance", "raw": 0.0318, "v": -0.0318, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0271, "v": -0.0271, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.012, "v": -0.012, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0112, "v": -0.0112, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0049, "v": 0.0049, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0026, "v": 0.0026, "t": "Elevated creatinine indicates impaired renal function."}]}, {"hadm_id": 90000033, "risk": 0.1483, "tier": "Low", "y": 0, "los": 3, "dx": 14, "labs": 44, "adm": "EW EMER.", "ins": "(not recorded)", "hgb": 13.1, "creat": 0.9, "na": 149.0, "plt": 152.0, "wbc": 10.8, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1058, "v": -0.1058, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0301, "v": -0.0301, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "race", "l": "Race", "raw": 0.0283, "v": -0.0283, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0275, "v": -0.0275, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": 0.0153, "v": -0.0153, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0107, "v": -0.0107, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0088, "v": -0.0088, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0068, "v": -0.0068, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0049, "v": 0.0049, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "insurance", "l": "Insurance", "raw": 0.0019, "v": -0.0019, "t": "Payer category acts as a partial proxy for access to post-acute care."}]}, {"hadm_id": 90000034, "risk": 0.1472, "tier": "Low", "y": 0, "los": 1, "dx": 14, "labs": 20, "adm": "SURGICAL SAME DAY ADMISSION", "ins": "Private", "hgb": 10.8, "creat": 0.7, "na": 137.0, "plt": 160.0, "wbc": 9.5, "shap": [{"f": "admission_type", "l": "Admission type", "raw": 0.1162, "v": -0.1162, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0799, "v": -0.0799, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0332, "v": -0.0332, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "insurance", "l": "Insurance", "raw": 0.029, "v": -0.029, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0275, "v": 0.0275, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0094, "v": -0.0094, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0094, "v": -0.0094, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "race", "l": "Race", "raw": -0.0033, "v": 0.0033, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0016, "v": 0.0016, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": -0.0001, "v": 0.0001, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}]}, {"hadm_id": 90000035, "risk": 0.1456, "tier": "Low", "y": 0, "los": 1, "dx": 10, "labs": 21, "adm": "SURGICAL SAME DAY ADMISSION", "ins": "Private", "hgb": 11.7, "creat": 1.0, "na": 139.0, "plt": 269.0, "wbc": 9.9, "shap": [{"f": "admission_type", "l": "Admission type", "raw": 0.083, "v": -0.083, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0761, "v": -0.0761, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.0624, "v": -0.0624, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "insurance", "l": "Insurance", "raw": 0.0363, "v": -0.0363, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0351, "v": -0.0351, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0207, "v": 0.0207, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0186, "v": 0.0186, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.0065, "v": -0.0065, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "race", "l": "Race", "raw": 0.0037, "v": -0.0037, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": -0.0032, "v": 0.0032, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}]}, {"hadm_id": 90000036, "risk": 0.1448, "tier": "Low", "y": 0, "los": 2, "dx": 2, "labs": 20, "adm": "EW EMER.", "ins": "Private", "hgb": 13.5, "creat": 1.02, "na": 139.0, "plt": 255.0, "wbc": 10.7, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1243, "v": -0.1243, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0618, "v": -0.0618, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "insurance", "l": "Insurance", "raw": 0.0531, "v": -0.0531, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0368, "v": -0.0368, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0172, "v": 0.0172, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0108, "v": 0.0108, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0106, "v": -0.0106, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": 0.006, "v": -0.006, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0046, "v": -0.0046, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0034, "v": 0.0034, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000037, "risk": 0.1448, "tier": "Low", "y": 0, "los": 1, "dx": 5, "labs": 24, "adm": "EW EMER.", "ins": "Private", "hgb": 14.3, "creat": 0.96, "na": 137.0, "plt": 219.0, "wbc": 5.3, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.1256, "v": -0.1256, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0664, "v": -0.0664, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "insurance", "l": "Insurance", "raw": 0.0526, "v": -0.0526, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0389, "v": -0.0389, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0157, "v": 0.0157, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0121, "v": -0.0121, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0106, "v": 0.0106, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0087, "v": 0.0087, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0084, "v": -0.0084, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0033, "v": 0.0033, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}]}, {"hadm_id": 90000038, "risk": 0.1448, "tier": "Low", "y": 0, "los": 1, "dx": 16, "labs": 23, "adm": "EU OBSERVATION", "ins": "Private", "hgb": 15.1, "creat": 0.98, "na": 134.0, "plt": 206.0, "wbc": 5.1, "shap": [{"f": "hemoglobin_mean_imputed", "l": "Haemoglobin mean, imputed", "raw": 0.129, "v": -0.129, "t": "Low haemoglobin indicates anaemia - associated with frailty, bleeding and poorer post-discharge recovery."}, {"f": "length_of_stay_days", "l": "Length of stay", "raw": 0.0707, "v": -0.0707, "t": "Longer stays generally indicate more severe or complicated admissions."}, {"f": "insurance", "l": "Insurance", "raw": 0.0537, "v": -0.0537, "t": "Payer category acts as a partial proxy for access to post-acute care."}, {"f": "hematocrit_mean_imputed", "l": "Haematocrit mean, imputed", "raw": 0.0411, "v": -0.0411, "t": "Haematocrit tracks with haemoglobin; low values indicate anaemia."}, {"f": "sodium_mean_imputed", "l": "Sodium mean, imputed", "raw": -0.0157, "v": 0.0157, "t": "Hyponatraemia is a recognised predictor of early readmission."}, {"f": "wbc_mean_imputed", "l": "White blood cell count, imputed", "raw": -0.0104, "v": 0.0104, "t": "Abnormal white cell counts may indicate unresolved infection or inflammation."}, {"f": "creatinine_mean_imputed", "l": "Creatinine mean, imputed", "raw": -0.0075, "v": 0.0075, "t": "Elevated creatinine indicates impaired renal function."}, {"f": "platelet_count_mean_imputed", "l": "Platelet count, imputed", "raw": 0.0073, "v": -0.0073, "t": "Abnormal platelets can signal marrow suppression, sepsis or liver disease."}, {"f": "race", "l": "Race", "raw": -0.0032, "v": 0.0032, "t": "Included for fairness auditing and monitored for disparate impact, not for clinical action."}, {"f": "admission_type", "l": "Admission type", "raw": 0.0007, "v": -0.0007, "t": "Emergency and direct-emergency admissions carry higher baseline readmission risk than elective ones."}]}]}
+</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const C = {high:'#D64545', med:'#E0A335', low:'#2E9E6B', teal:'#028090', blue:'#2B6CB0', grid:'#E4EEEC'};
+const pct = (v,d=1)=> v==null||isNaN(v) ? '—' : (v*100).toFixed(d)+'%';
+const num = (v,d=0)=> v==null||isNaN(v) ? '—' : Number(v).toLocaleString(undefined,{maximumFractionDigits:d});
+
+function safeChart(el,cfg){
+  try{
+    if(typeof Chart==='undefined') throw new Error('Chart.js unavailable');
+    if(!el) throw new Error('canvas missing');
+    return new Chart(el,cfg);
+  }catch(e){
+    if(el&&el.parentNode){
+      const d=document.createElement('div');
+      d.style.cssText='padding:18px;border:1px dashed var(--line);border-radius:8px;color:var(--ink-soft);font-size:12px;text-align:center';
+      d.textContent='Chart unavailable offline — contributions are listed in Panel 2.';
+      el.parentNode.replaceChild(d,el);
+    }
+    return null;
+  }
+}
+
+/* ============================================================
+   DETERMINISTIC NARRATIVE GENERATOR
+   ------------------------------------------------------------
+   Converts the model's Shapley output into plain-English clinical
+   language. Rule-based and fully deterministic: the same admission
+   always produces the same text. No language model, no API call,
+   no network dependency, and no capacity to hallucinate.
+
+   Clinical thresholds below are conventional adult reference
+   ranges, used only to describe the patient's recorded values in
+   words. They are NOT model logic and do not affect the score.
+   ============================================================ */
+
+const REF = {
+  hgb:   {low: 12.0, crit: 9.0,  unit: 'g/dL'},
+  na:    {low: 135,  high: 145,  unit: 'mmol/L'},
+  creat: {high: 1.5, crit: 3.0,  unit: 'mg/dL'},
+  wbc:   {low: 4.0,  high: 11.0, unit: 'K/uL'},
+  plt:   {low: 150,  high: 450,  unit: 'K/uL'}
+};
+
+function describeValue(key, v) {
+  if (v === null || v === undefined) return null;
+  const r = REF[key];
+  switch (key) {
+    case 'hgb':
+      if (v < r.crit) return `marked anaemia (haemoglobin mean ${v} ${r.unit})`;
+      if (v < r.low)  return `anaemia (haemoglobin mean ${v} ${r.unit})`;
+      return `a haemoglobin mean within range (${v} ${r.unit})`;
+    case 'na':
+      if (v < r.low)  return `hyponatraemia (sodium mean ${v} ${r.unit})`;
+      if (v > r.high) return `hypernatraemia (sodium mean ${v} ${r.unit})`;
+      return `a sodium mean within range (${v} ${r.unit})`;
+    case 'creat':
+      if (v >= r.crit) return `a markedly elevated creatinine mean (${v} ${r.unit})`;
+      if (v > r.high)  return `an elevated creatinine mean (${v} ${r.unit})`;
+      return `a creatinine mean within range (${v} ${r.unit})`;
+    case 'wbc':
+      if (v > r.high) return `a raised white blood cell count (${v} ${r.unit})`;
+      if (v < r.low)  return `a low white blood cell count (${v} ${r.unit})`;
+      return `a white blood cell count within range (${v} ${r.unit})`;
+    case 'plt':
+      if (v < r.low)  return `thrombocytopenia (platelets ${v} ${r.unit})`;
+      if (v > r.high) return `thrombocytosis (platelets ${v} ${r.unit})`;
+      return `platelets within range (${v} ${r.unit})`;
+  }
+  return null;
+}
+
+// Maps a model feature to a clinical phrase for THIS patient.
+function phraseFor(feature, p) {
+  switch (feature) {
+    case 'hemoglobin_mean_imputed':   return describeValue('hgb', p.hgb);
+    case 'sodium_mean_imputed':       return describeValue('na', p.na);
+    case 'creatinine_mean_imputed':   return describeValue('creat', p.creat);
+    case 'wbc_mean_imputed':          return describeValue('wbc', p.wbc);
+    case 'platelet_count_mean_imputed': return describeValue('plt', p.plt);
+    case 'hematocrit_mean_imputed':   return 'the recorded haematocrit mean';
+    case 'admission_type': {
+      const MAP = {
+        'DIRECT EMER.': 'a direct emergency admission',
+        'EW EMER.': 'an emergency department admission',
+        'URGENT': 'an urgent admission',
+        'ELECTIVE': 'an elective admission',
+        'SURGICAL SAME DAY ADMISSION': 'a same-day surgical admission',
+        'OBSERVATION ADMIT': 'an observation admission',
+        'DIRECT OBSERVATION': 'a direct observation encounter',
+        'EU OBSERVATION': 'an emergency observation encounter'
+      };
+      return MAP[(p.adm || '').toUpperCase()] || `a ${(p.adm || 'recorded').toLowerCase()} admission`;
+    }
+    case 'length_of_stay_days': {
+      if (p.los >= 14) return `a prolonged ${p.los}-day stay`;
+      if (p.los <= 1)  return `a very short ${p.los}-day stay`;
+      return `a ${p.los}-day length of stay`;
+    }
+    case 'insurance': return `payer category (${p.ins})`;
+    case 'race':      return 'recorded race/ethnicity';
+  }
+  return null;
+}
+
+// Intervention suggestions keyed to the drivers actually present.
+function actionsFor(p, risingFeatures) {
+  const a = [];
+  const has = f => risingFeatures.indexOf(f) >= 0;
+
+  if (has('hemoglobin_mean_imputed') && p.hgb !== null && p.hgb < 12)
+    a.push('Consider whether anaemia warrants review before discharge, including iron studies or haematology follow-up.');
+  if (has('creatinine_mean_imputed') && p.creat !== null && p.creat > 1.5)
+    a.push('Consider whether renal function should be rechecked and nephrotoxic medications reviewed.');
+  if (has('sodium_mean_imputed') && p.na !== null && (p.na < 135 || p.na > 145))
+    a.push('Consider whether electrolytes should be repeated post-discharge.');
+  if (has('wbc_mean_imputed') && p.wbc !== null && (p.wbc > 11 || p.wbc < 4))
+    a.push('Consider whether any active infection has been reviewed before discharge is finalised.');
+  if (has('admission_type') && (p.adm || '').toUpperCase().indexOf('EMER') >= 0)
+    a.push('Unplanned admission — consider whether a transitional care call is appropriate.');
+  if (has('length_of_stay_days') && p.los >= 14)
+    a.push('Prolonged stay — consider whether deconditioning and home support should be assessed.');
+  if (p.labs === 0)
+    a.push('No laboratory data recorded — this score should not be relied on without baseline bloods.');
+
+  if (p.tier === 'High') {
+    a.push('High tier — consider the full discharge bundle: medication reconciliation, teach-back, and early follow-up.');
+  } else if (p.tier === 'Medium') {
+    a.push('Medium tier — standard discharge planning; consider a follow-up call.');
+  } else {
+    a.push('Low tier — standard discharge pathway; the model does not indicate enhanced intervention.');
+  }
+  return a;
+}
+
+function buildNarrative(p, baseline) {
+  const sorted = [...p.shap].sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
+  const rising  = sorted.filter(s => s.v > 0);
+  const falling = sorted.filter(s => s.v < 0);
+
+  // --- headline ---
+  const ratio = p.risk / baseline;
+  let rel;
+  if (ratio >= 1.75)      rel = 'well above';
+  else if (ratio >= 1.15) rel = 'above';
+  else if (ratio >= 0.85) rel = 'close to';
+  else if (ratio >= 0.5)  rel = 'below';
+  else                    rel = 'well below';
+  const headline =
+    `This admission is scored <b>${(p.risk * 100).toFixed(1)}%</b> — ${rel} the population average of ` +
+    `${(baseline * 100).toFixed(1)}% — placing it in the <b>${p.tier.toLowerCase()}-risk</b> tier.`;
+
+  // --- drivers ---
+  const risePhrases = rising.slice(0, 3).map(s => phraseFor(s.f, p)).filter(Boolean);
+  let driverText = '';
+  if (risePhrases.length === 0) {
+    driverText = 'No individual factor pushes this admission materially above baseline.';
+  } else {
+    const joined = risePhrases.length === 1
+      ? risePhrases[0]
+      : risePhrases.slice(0, -1).join(', ') + ' and ' + risePhrases[risePhrases.length - 1];
+    driverText = `The score is driven mainly by ${joined}.`;
+  }
+
+  // --- protective factors ---
+  const fallPhrases = falling.slice(0, 2).map(s => phraseFor(s.f, p)).filter(Boolean);
+  let protectiveText = '';
+  if (fallPhrases.length) {
+    const joined = fallPhrases.length === 1
+      ? fallPhrases[0]
+      : fallPhrases.join(' and ');
+    protectiveText = ` Offsetting this, the model treats ${joined} as reducing risk.`;
+  }
+
+  // --- non-clinical driver caveat ---
+  const nonClinical = rising.slice(0, 3).filter(s => s.f === 'insurance' || s.f === 'race');
+  let governanceText = '';
+  if (nonClinical.length) {
+    const names = nonClinical.map(s => s.l.toLowerCase()).join(' and ');
+    governanceText =
+      `<div class="narr-flag"><b>Governance note.</b> ${names.charAt(0).toUpperCase() + names.slice(1)} ` +
+      `appears among the top contributors for this admission. These are non-clinical attributes included for ` +
+      `fairness auditing. They must not be used as a reason to allocate or withhold care — see the equity review.</div>`;
+  }
+
+  // --- low-confidence caveat ---
+  let confidenceText = '';
+  if (p.labs === 0) {
+    confidenceText =
+      `<div class="narr-flag"><b>Low confidence.</b> No laboratory results are recorded, so all six lab ` +
+      `features fall back to the -999 sentinel. The score rests almost entirely on administrative fields and ` +
+      `should not be relied on without baseline bloods.</div>`;
+  }
+
+  return {
+    headline: headline,
+    body: driverText + protectiveText,
+    flags: governanceText + confidenceText,
+    actions: actionsFor(p, rising.map(s => s.f))
+  };
+}
+
+/* ---------- header ---------- */
+document.getElementById('meta').innerHTML =
+  `Model: <b>boosted_trees_model</b> · ROC-AUC <b>${D.meta.auc.toFixed(4)}</b> · Log loss <b>${D.meta.logloss.toFixed(4)}</b> · Accuracy <b>${D.meta.acc_default.toFixed(4)}</b> <span style="opacity:.75">(at default 0.50)</span>`;
+document.getElementById('banner-text').innerHTML =
+  `<b>De-identified MIMIC-IV v3.1 research data.</b> This is a proof-of-concept prototype using
+   de-identified MIMIC-IV v3.1 research records. <b>Not live MCH patient data.</b>
+   Scores from <code>${D.meta.model}</code>, the project's boosted-tree model
+   (author: ${D.meta.owner}), on the held-out test split of <b>${num(D.meta.n_test)}</b> admissions
+   (train ${num(D.meta.n_train)} · validation ${num(D.meta.n_val)}). Observed 30-day readmission rate
+   <b>${pct(D.meta.event_rate)}</b>; mean predicted risk <b>${pct(D.meta.baseline)}</b>. At the
+   <b>${D.meta.threshold.toFixed(2)}</b> operational threshold the model flags <b>${num(D.meta.n_high)}</b> admissions
+   (flag rate <b>${pct(D.meta.flag_rate,2)}</b>) with precision <b>${pct(D.meta.ppv_high)}</b>,
+   recall <b>${pct(D.meta.recall_high)}</b> and F1-score <b>${D.meta.f1.toFixed(4)}</b>.
+   The queue below is a <b>${D.patients.length}-admission illustrative sample</b> spanning all three tiers.
+   <br><br><b>Attribution sign convention.</b> This model's Shapley values are oriented toward the negative class, so a
+   raw negative attribution pushes a patient <i>toward</i> readmission. Displayed signs are inverted so that red always
+   means "increases readmission risk", per Appendix E. Magnitudes and rankings are unchanged from the model output.`;
+
+/* ---------- Panel 1 ---------- */
+document.getElementById('tier-kpis').innerHTML = D.meta.tiers.map(t=>`
+  <div class="kpi" style="border-left-color:${t.tier==='High'?C.high:t.tier==='Medium'?C.med:C.low}">
+    <div class="l"><span class="flag ${t.tier}"></span>${t.tier} risk</div>
+    <div class="v">${num(t.n)}</div>
+    <div class="f">${pct(t.pct)} of admissions · ${pct(t.observed,2)} historical event rate<br>
+      <span style="opacity:.8">retrospective test cohort (n = ${num(D.meta.n_test)})</span></div>
+  </div>`).join('');
+
+const uniq = k => [...new Set(D.patients.map(p=>p[k]))].sort();
+['adm','ins'].forEach(k=>{
+  const sel=document.getElementById('f-'+k);
+  sel.innerHTML = `<option value="all">All</option>` + uniq(k).map(v=>`<option>${v}</option>`).join('');
+});
+
+let sort={k:'risk',d:-1}, selected=null;
+function rows(){
+  const t=document.getElementById('f-tier').value,
+        a=document.getElementById('f-adm').value,
+        i=document.getElementById('f-ins').value;
+  let r=D.patients.filter(p=>(t==='all'||p.tier===t)&&(a==='all'||p.adm===a)&&(i==='all'||p.ins===i));
+  r.sort((x,y)=>{const k=sort.k; if(x[k]===y[k])return 0; return (x[k]>y[k]?1:-1)*sort.d;});
+  return r;
+}
+function draw(){
+  const r=rows();
+  document.getElementById('count').textContent=
+    `Showing ${r.length} of ${D.patients.length} sample admissions`;
+  document.getElementById('tb').innerHTML=r.map(p=>`
+    <tr data-id="${p.hadm_id}" class="${selected===p.hadm_id?'sel':''}">
+      <td><b>${pct(p.risk)}</b></td>
+      <td><span class="flag ${p.tier}"></span><span class="badge ${p.tier}">${p.tier}</span></td>
+      <td>${p.hadm_id}</td><td>${p.los}</td>
+      <td style="font-family:var(--ui);font-size:11.5px">${p.adm}</td>
+      <td style="font-family:var(--ui);font-size:11.5px">${p.ins}</td>
+      <td>${p.dx}</td><td>${p.labs}</td>
+    </tr>`).join('');
+  document.querySelectorAll('#tb tr').forEach(tr=>
+    tr.addEventListener('click',()=>select(+tr.dataset.id)));
+}
+document.querySelectorAll('#tbl thead th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k; sort.d = sort.k===k ? -sort.d : -1; sort.k=k; draw();
+}));
+['f-tier','f-adm','f-ins'].forEach(id=>document.getElementById(id).addEventListener('change',draw));
+
+/* ---------- Panels 2 & 3 ---------- */
+const CHECKLIST=[
+  'Follow-up appointment scheduled within 7 days',
+  'Medication reconciliation completed',
+  'Discharge education delivered and teach-back confirmed',
+  'Home health / post-acute referral made',
+  '48-hour follow-up call scheduled',
+  'Transport and social needs assessed'
+];
+let chartRef=null, checkState={};
+
+function select(id){
+  selected=id;
+  const p=D.patients.find(x=>x.hadm_id===id);
+  draw();
+  const col = p.tier==='High'?C.high:p.tier==='Medium'?C.med:C.low;
+  const sorted=[...p.shap].sort((a,b)=>Math.abs(b.v)-Math.abs(a.v));
+
+  const N = buildNarrative(p, D.meta.baseline);
+  document.getElementById('p2').innerHTML=`
+    <div class="prob" style="border-left:5px solid ${col}">
+      <div class="big" style="color:${col}">${pct(p.risk)}</div>
+      <div>
+        <div class="lbl">predicted 30-day readmission probability</div>
+        <div style="margin-top:4px"><span class="badge ${p.tier}">${p.tier} risk</span>
+          <span class="tag">admission ${p.hadm_id}</span></div>
+      </div>
+    </div>
+
+    <div class="sec-h">Automated summary</div>
+    <div class="narr">
+      <p class="hl">${N.headline}</p>
+      <p class="bd">${N.body}</p>
+      ${N.flags}
+      <div class="sec-h" style="margin:12px 0 4px">Suggested case-management review prompts</div>
+      <ul class="narr-act">${N.actions.map(a=>`<li>${a}</li>`).join('')}</ul>
+      <div class="narr-flag" style="margin-top:10px">
+        <b>These are review prompts, not clinical advice.</b> Each item is generated from model
+        attributions and recorded values, and requires human clinical review before any action is
+        taken. Nothing here constitutes a treatment recommendation or a care directive.
+      </div>
+      <div class="src">Generated deterministically from this admission's Shapley output and recorded
+        values. Rule-based, not a language model &mdash; the same admission always produces identical text.
+        Describes model behaviour only. Requires human clinical review; it does not replace clinical
+        judgement and is not a treatment recommendation.</div>
+    </div>
+
+    <div class="sec-h">Clinical summary</div>
+    <div class="clin">
+      <div><div class="k">Length of stay</div><div class="v">${p.los}d</div></div>
+      <div><div class="k">Diagnoses</div><div class="v">${p.dx}</div></div>
+      <div><div class="k">Lab types</div><div class="v">${p.labs}</div></div>
+      <div><div class="k">Haemoglobin</div><div class="v">${p.hgb??'—'}</div></div>
+      <div><div class="k">Creatinine</div><div class="v">${p.creat??'—'}</div></div>
+      <div><div class="k">Sodium</div><div class="v">${p.na??'—'}</div></div>
+      <div><div class="k">Platelets</div><div class="v">${p.plt??'—'}</div></div>
+      <div><div class="k">WBC</div><div class="v">${p.wbc??'—'}</div></div>
+    </div>
+    ${p.labs===0?`<div class="note" style="color:#9A6B10;background:#FFF6E8;border:1px solid #F0D28B;border-radius:8px;padding:9px 11px;margin-top:12px;border-top:1px solid #F0D28B">
+      <b>No laboratory results recorded for this admission.</b> All six lab features fall back to the -999 sentinel value, which the model reads as a value rather than as missing. The score is therefore driven almost entirely by administrative fields. Treat as <b>low confidence</b> and rely on clinical judgement.</div>`:''}
+
+    <div class="sec-h">Model-attributed contributors <span style="text-transform:none;font-weight:400;font-style:italic">— not causal explanations</span></div>
+    <ul class="contrib">
+      ${sorted.map((s,i)=>{
+        const mx=Math.max(...sorted.map(z=>Math.abs(z.v)));
+        const w=Math.abs(s.v)/mx*50;
+        const pos=s.v>=0;
+        return `<li title="${s.t.replace(/"/g,'&quot;')}">
+          <span class="rank">${i+1}</span>
+          <span class="nm">${s.l}</span>
+          <span class="bar"><i style="${pos?'left:50%':'right:50%'};width:${w}%;background:${pos?C.high:C.blue}"></i></span>
+          <span class="val ${pos?'up':'down'}">${pos?'▲':'▼'} ${s.v>=0?'+':''}${s.v.toFixed(3)}</span>
+        </li>`;}).join('')}
+    </ul>
+
+    <div class="sec-h">Case management checklist</div>
+    <ul class="chk">
+      ${CHECKLIST.map((c,i)=>{
+        const on = (checkState[id]||{})[i];
+        return `<li><input type="checkbox" id="c${i}" ${on?'checked':''}>
+          <label for="c${i}" class="${on?'done':''}">${c}</label></li>`;}).join('')}
+    </ul>`;
+
+  CHECKLIST.forEach((_,i)=>{
+    const cb=document.getElementById('c'+i);
+    cb.addEventListener('change',()=>{
+      checkState[id]=checkState[id]||{}; checkState[id][i]=cb.checked;
+      cb.nextElementSibling.className = cb.checked?'done':'';
+    });
+  });
+
+  // Panel 3
+  const top=sorted.slice(0,10);
+  if(chartRef){chartRef.destroy();chartRef=null;}
+  const cv=document.getElementById('shapChart');
+  if(cv&&cv.tagName==='CANVAS'){
+    chartRef=safeChart(cv,{
+      type:'bar',
+      data:{labels:top.map(s=>s.l),
+        datasets:[{data:top.map(s=>s.v),
+          backgroundColor:top.map(s=>s.v>=0?C.high:C.blue),borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,animation:{duration:300},
+        plugins:{legend:{display:false},
+          tooltip:{callbacks:{
+            title:(c)=>top[c[0].dataIndex].l,
+            label:(c)=>`${c.raw>=0?'Increases':'Reduces'} risk by ${Math.abs(c.raw).toFixed(3)}`,
+            afterLabel:(c)=>top[c.dataIndex].t}}},
+        scales:{x:{grid:{color:C.grid},title:{display:true,text:'Shapley contribution to log-odds'}},
+                y:{grid:{display:false},ticks:{font:{size:11}}}}}
+    });
+  }
+  document.getElementById('baseline-note').innerHTML =
+    `<span style="margin-left:auto">SHAP explanation baseline: <b>${pct(D.meta.shap_baseline,2)}</b></span>`;
+  document.getElementById('shap-tips').innerHTML =
+    `<p style="margin-top:0"><b>Reading this chart.</b> Bars to the right increase this admission's predicted risk
+     relative to the <b>SHAP explanation baseline</b> of ${pct(D.meta.shap_baseline,2)}; bars to the left reduce it.
+     This baseline is the model's expected output before any feature is considered. It is distinct from the
+     mean predicted risk across the test cohort (${pct(D.meta.mean_predicted)}) and from the observed test-set
+     prevalence (${pct(D.meta.prevalence)}) reported in the written report.</p>
+     <p><b>Why a low-risk admission can still show risk-increasing bars.</b> Contributions are additive around the
+     baseline, not independent verdicts. Individual features may push risk upward while other features pull it down
+     further, leaving the combined prediction low. A red bar does not mean the admission is high risk.</p>
+     <p style="margin-bottom:0">Contributions are Shapley values from <code>ML.EXPLAIN_PREDICT</code>. They describe
+     <b>model behaviour only</b> and are <b>not causal explanations, treatment recommendations, or evidence of
+     clinical effectiveness</b>. Hover any bar for the clinical relevance of that feature.</p>`;
+}
+
+safeChart(document.getElementById('globalChart'),{
+  type:'bar',
+  data:{labels:D.meta.shap_global.map(s=>s.l),
+    datasets:[{data:D.meta.shap_global.map(s=>s.v),backgroundColor:C.teal,borderRadius:3}]},
+  options:{indexAxis:'y',responsive:true,animation:{duration:300},
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>`mean |Shapley| ${c.raw.toFixed(4)}`}}},
+    scales:{x:{grid:{color:C.grid},title:{display:true,text:'mean |Shapley value|'}},
+            y:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
+
+draw();
+select(D.patients[0].hadm_id);
+</script>
+</body>
+</html>
