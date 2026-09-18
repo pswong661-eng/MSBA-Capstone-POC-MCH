@@ -229,41 +229,26 @@ tbody tr.sel{background:#E8F5F3;box-shadow:inset 3px 0 0 var(--teal)}
   <!-- ============ PANEL 4 ============ -->
   <div class="panel">
     <h2><span class="panel-num">4</span>Dashboard Notes</h2>
+    <div class="note" style="margin-top:0;padding-top:0;border-top:none;font-style:italic">
+      Evidence-boundary and governance points only. Full model metrics, baseline definitions,
+      sign-convention mechanics and implementation options are documented in the report appendix.
+    </div>
     <ul class="notes-list">
-      <li><b>Proof of concept — not for clinical use.</b> This prototype is a research demonstration
-        for a future pilot. It is not production UI and not a clinical decision tool.</li>
-      <li>All records are <b>de-identified MIMIC-IV v3.1 research records</b>. <b>Not live MCH patient
-        data.</b> No PHI is displayed.</li>
-      <li><b>Threshold 0.30 is a retrospective, capacity-oriented scenario</b> evaluated on held-out
-        research data — not a clinically validated MCH production threshold.</li>
-      <li><b>The Medium/Low boundary at 0.15 is a dashboard display and triage convention only.</b>
-        The report evaluates the 0.30 scenario; 0.15 was not formally validated as a clinical cut-off.</li>
-      <li><b>Model.</b> <code>boosted_trees_model</code> — 100 iterations, subsample 0.8, ten features.
-        Held-out test set of 81,625 admissions: ROC-AUC 0.6407, log loss 0.4856, accuracy 0.7986 at the
-        default 0.50 threshold. At threshold 0.30: 8,658 flagged (10.61% flag rate), precision 38.15%,
-        recall 20.04%, F1-score 0.2627, accuracy 77.29%. Overall test prevalence 20.19%.</li>
-      <li><b>Shapley values describe model behaviour only.</b> They are <b>not causal explanations,
-        treatment recommendations, or evidence of clinical effectiveness</b>.</li>
-      <li><b>Three different baselines appear in this project and should not be conflated:</b> the SHAP
-        explanation baseline (24.65%, the model's expected output before any feature is considered);
-        the mean predicted risk across the test cohort (22.81%); and the observed test-set prevalence
-        (20.19%) reported in the written report.</li>
-      <li><b>Observed readmission percentages on the tier cards are historical event rates in the
-        retrospective test cohort</b>, computed from the same held-out split. They are not forecasts.</li>
-      <li><b>Sign convention.</b> This model's Shapley attributions are oriented toward the negative
-        class. Displayed signs are inverted so red consistently means "increases readmission risk".
-        Magnitudes and rankings are the model's own, unmodified.</li>
-      <li><b>The automated summary is deterministic and rule-based</b> — generated from Shapley output
-        and recorded values, with no language model and no external service call. Review prompts require
-        human clinical review and are not treatment advice.</li>
-      <li><b>Missing labs use a −999 sentinel</b> rather than being excluded. Admissions with no labs are
-        scored largely on administrative fields and are flagged low-confidence in Panel 2.</li>
-      <li><b>Unit</b> and <b>service line</b> are <b>future MCH integration fields</b>, shown disabled.
-        Neither exists in the modelling table. <b>Age-banded views</b> are likewise unavailable.</li>
-      <li><b>Calibration and subgroup fairness metrics have not been computed</b> (§8.1 of the report
-        lists both as pending) and are required before any production recommendation.</li>
-      <li>The dashboard can be implemented in Looker Studio, Tableau, or an EHR-adjacent module
-        depending on MCH's IT environment.</li>
+      <li><b>Proof of concept — not for clinical use.</b> Research demonstration for a future pilot;
+        not production UI, not a clinical decision tool.</li>
+      <li><b>De-identified MIMIC-IV v3.1 research records. Not live MCH patient data.</b> No PHI displayed.</li>
+      <li><b>Threshold 0.30 is a retrospective, capacity-oriented scenario</b> — not a clinically
+        validated MCH production threshold.</li>
+      <li><b>Medium and Low are prototype display tiers</b> (0.15 boundary) for triage convenience
+        only, not clinically validated categories. Only the 0.30 scenario is evaluated in the report.</li>
+      <li><b>Shapley values describe model behaviour only</b> — not causal explanations, treatment
+        recommendations, or evidence of clinical effectiveness.</li>
+      <li><b>The automated summary and review prompts are deterministic and rule-based</b> — no
+        language model, no external calls. They require human clinical review and are not treatment advice.</li>
+      <li><b>Missing labs use a −999 sentinel;</b> admissions with no labs are flagged low-confidence.</li>
+      <li><b>Unit, service line and age-banded views are not yet available</b> in this prototype.</li>
+      <li><b>Calibration and subgroup fairness metrics have not yet been computed</b> and are required
+        before any production recommendation (§8.1 of the report).</li>
     </ul>
   </div>
 
@@ -382,26 +367,26 @@ function actionsFor(p, risingFeatures) {
   const has = f => risingFeatures.indexOf(f) >= 0;
 
   if (has('hemoglobin_mean_imputed') && p.hgb !== null && p.hgb < 12)
-    a.push('Consider whether anaemia warrants review before discharge, including iron studies or haematology follow-up.');
+    a.push('Review whether anaemia-related follow-up is already planned according to local clinical processes.');
   if (has('creatinine_mean_imputed') && p.creat !== null && p.creat > 1.5)
-    a.push('Consider whether renal function should be rechecked and nephrotoxic medications reviewed.');
+    a.push('Review whether renal-function-related follow-up is already planned according to local clinical processes.');
   if (has('sodium_mean_imputed') && p.na !== null && (p.na < 135 || p.na > 145))
-    a.push('Consider whether electrolytes should be repeated post-discharge.');
+    a.push('Review whether electrolyte-related follow-up is already planned according to local clinical processes.');
   if (has('wbc_mean_imputed') && p.wbc !== null && (p.wbc > 11 || p.wbc < 4))
-    a.push('Consider whether any active infection has been reviewed before discharge is finalised.');
+    a.push('Review whether infection-related follow-up is already planned according to local clinical processes.');
   if (has('admission_type') && (p.adm || '').toUpperCase().indexOf('EMER') >= 0)
-    a.push('Unplanned admission — consider whether a transitional care call is appropriate.');
+    a.push('Unplanned admission — review whether post-discharge contact is already planned according to local clinical processes.');
   if (has('length_of_stay_days') && p.los >= 14)
-    a.push('Prolonged stay — consider whether deconditioning and home support should be assessed.');
+    a.push('Prolonged stay — review whether deconditioning- and support-related follow-up is already planned according to local clinical processes.');
   if (p.labs === 0)
-    a.push('No laboratory data recorded — this score should not be relied on without baseline bloods.');
+    a.push('No laboratory data recorded — review whether baseline bloods are needed before this score is used.');
 
   if (p.tier === 'High') {
-    a.push('High tier — consider the full discharge bundle: medication reconciliation, teach-back, and early follow-up.');
+    a.push('High tier — review whether the standard discharge bundle (medication reconciliation, teach-back, early follow-up) is already planned according to local clinical processes.');
   } else if (p.tier === 'Medium') {
-    a.push('Medium tier — standard discharge planning; consider a follow-up call.');
+    a.push('Medium tier — review whether standard discharge planning, including a follow-up call, is already in place according to local clinical processes.');
   } else {
-    a.push('Low tier — standard discharge pathway; the model does not indicate enhanced intervention.');
+    a.push('Low tier — no enhanced review indicated by the model; standard discharge pathway applies.');
   }
   return a;
 }
@@ -420,8 +405,9 @@ function buildNarrative(p, baseline) {
   else if (ratio >= 0.5)  rel = 'below';
   else                    rel = 'well below';
   const headline =
-    `This admission is scored <b>${(p.risk * 100).toFixed(1)}%</b> — ${rel} the population average of ` +
-    `${(baseline * 100).toFixed(1)}% — placing it in the <b>${p.tier.toLowerCase()}-risk</b> tier.`;
+    `This admission is scored <b>${(p.risk * 100).toFixed(1)}%</b> — ${rel} the selected comparison baseline of ` +
+    `${(baseline * 100).toFixed(1)}% (mean predicted risk across the test cohort) — placing it in the ` +
+    `<b>${p.tier.toLowerCase()}-risk</b> tier.`;
 
   // --- drivers ---
   const risePhrases = rising.slice(0, 3).map(s => phraseFor(s.f, p)).filter(Boolean);
@@ -494,7 +480,7 @@ document.getElementById('banner-text').innerHTML =
 /* ---------- Panel 1 ---------- */
 document.getElementById('tier-kpis').innerHTML = D.meta.tiers.map(t=>`
   <div class="kpi" style="border-left-color:${t.tier==='High'?C.high:t.tier==='Medium'?C.med:C.low}">
-    <div class="l"><span class="flag ${t.tier}"></span>${t.tier} risk</div>
+    <div class="l"><span class="flag ${t.tier}"></span>${t.tier} risk${t.tier!=='High'?' <span style="font-weight:400;text-transform:none;opacity:.75">(prototype display tier)</span>':''}</div>
     <div class="v">${num(t.n)}</div>
     <div class="f">${pct(t.pct)} of admissions · ${pct(t.observed,2)} historical event rate<br>
       <span style="opacity:.8">retrospective test cohort (n = ${num(D.meta.n_test)})</span></div>
