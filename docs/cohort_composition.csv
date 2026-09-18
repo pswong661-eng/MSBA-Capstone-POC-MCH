@@ -1,0 +1,5 @@
+partition,distinct_patients,admissions,positive_labels,negative_labels,positive_rate_pct
+Training,156494,381888,76684,305204,20.08
+Validation,33528,82515,17050,65465,20.66
+Test,33430,81625,16484,65141,20.19
+Total,223452,546028,110218,435810,20.19
